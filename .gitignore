@@ -1,0 +1,13 @@
+.style.yapf
+*_wip\.py
+cache/
+.vscode
+.devcontainer
+*\.pyc
+data/
+*.code-workspace
+*.tar.gz
+*.npz
+build/
+*.egg-info
+venv/
