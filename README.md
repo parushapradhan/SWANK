@@ -1,36 +1,4 @@
-# OpenStreetMap Road Surface Classifier
 
-<img src="./figures/osm_logo.png" alt="OSM Logo" width="10%"/> <img src="./figures/rsc_road_small.svg" alt="OSM Logo" width="10%"/>
-
-This project leverages machine learning (ML) to tag "drivable ways" (roads) in OpenStreetMap **with > 95% accuracy**. The main focus at the moment is automating tagging of the road surface type (paved vs. unpaved; but skill is shown for asphalt, concrete, gravel, etc.), with other helpful tags such as number of lanes to be added in the future.
-
-> :warning: **Much of this code is under active development. Breaking changes are to be expected.**
-
-## Table of Contents
-- [Why Should I Care...](#why-should-i-care)
-- [Integration with the OSM Community](#integration-with-the-osm-community)
-- [Python Environment](#python-environment)
-- [Training Dataset](#training-dataset)
-- [Model Architecture](#model-architecture)
-- [Model Training](#model-training)
-- [Training Results](#training-results)
-- [Credits](#credits)
-
-## Why Should I Care...
-
-### ... About OpenStreetMap?
-
-Most geospatial data, like that provided in Google Maps, are locked behind licensing and paywalls. Maps should not be proprietary. OpenStreetMap aims to change this, by providing open geospatial data for everyone. [See more here](https://wiki.openstreetmap.org/wiki/FAQ#Why_OpenStreetMap?).
-
-### ... About this Project?
-
-Road surface type is critical for routing applications to generate useful routes. For example, nominal driving speeds are much slower on unpaved roads vs. paved roads. For bicycles, unpaved routes may need to be avoided completely. In any case, lacking knowledge of road surface type can lead any OSM-based routing application to choose suboptimal routes [if the assumed default surface values are incorrect](https://wiki.openstreetmap.org/wiki/Key:surface#Default_values). Widespread labeling of road surface types can increase overall confidence in OSM-based routers as a viable routing solution for cars and bicycles alike.
-
-## Integration with the OSM Community
-
-I foresee the following possible integrations with the OpenStreetMap community:
-  - Provide a dataset that can augment OSM routing solutions, such as [Project OSRM](https://project-osrm.org/), [Valhalla](https://github.com/valhalla/valhalla), and [cycle.travel](https://cycle.travel/).
-  - Integrate the above dataset into editors such as [JOSM](https://josm.openstreetmap.de/) or [Rapid](https://rapideditor.org/). I'm prototyping a plugin for JOSM at the moment.
 
 ## Python Environment
 I recommend [pip-tools](https://github.com/jazzband/pip-tools) to manage the environment for this project. The gist for to set up a Python environment for this repo would be:
