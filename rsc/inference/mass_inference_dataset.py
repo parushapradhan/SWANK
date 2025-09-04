@@ -15,7 +15,7 @@ from .fetch import fetch
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-IMAGERY_PATH = pathlib.Path('/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019')
+IMAGERY_PATH = pathlib.Path('/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/road_surface_classifier/imagery')
 assert IMAGERY_PATH.is_dir()
 
 

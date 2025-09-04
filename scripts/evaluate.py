@@ -14,21 +14,24 @@ import torch
 from torch.utils.data import DataLoader
 
 from rsc.inference.mass_inference_dataset import MassInferenceDataset
-from rsc.model.preprocess import PreProcess
+from rsc.inference.custom import CustomFeaturesDataset
+from rsc.inference.custom import CustomSQLiteDataset
+from rsc.train.preprocess import PreProcess
 
 # Input model and checkpoint paths (checkpoint contains the weights for inference)
 # Since these files are so large, they are not in source control.
 # Reach out to me if you'd like them.
+
 ckpt_path = pathlib.Path(
-    '/data/road_surface_classifier/results/20230107_042006Z/model-0-epoch=10-val_loss=0.39906.ckpt'
+    '/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/road_surface_classifier/results/20250902_154834Z/model-epoch=14-val_loss=0.75055.ckpt'
 )
 assert ckpt_path.exists()
 results_name = ckpt_path.parent.name
-ds_path = pathlib.Path('/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019.sqlite3')
+ds_path = pathlib.Path('/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/road_surface_classifier/features.sqlite3')
 assert ds_path.exists()
 
 # %% Setup processing chain for inference
-from rsc.model.plmcnn import PLMaskCNN
+from rsc.train.plmcnn import PLMaskCNN
 
 # Load model and set to eval mode
 model = PLMaskCNN.load_from_checkpoint(ckpt_path)
@@ -36,10 +39,15 @@ model.eval()
 
 # Get label array (it's built into model)
 labels = model.__dict__.get('labels')
-
+csv_path = pathlib.Path('/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/road_surface_classifier/features.csv')
 # Import dataset
 preprocess = PreProcess()
-val_ds = MassInferenceDataset(ds_path, transform=preprocess)
+
+ds_path = pathlib.Path('/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/road_surface_classifier/features.sqlite3')
+
+# And use the original MassInferenceDataset
+# val_ds = MassInferenceDataset(ds_path, transform=preprocess)
+val_ds = CustomSQLiteDataset(ds_path, transform=preprocess)
 batch_size = 64
 val_dl = DataLoader(val_ds,
                     num_workers=16,
@@ -78,18 +86,18 @@ columns = ['osm_id', 'pred_label', *['pred_%s' % label for label in labels]]
 
 df = pd.DataFrame(output, columns=columns).set_index('osm_id')
 df.to_csv(
-    f'/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv')
+    f'/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv')
 
 #%% Load in CSV output, and merge with original dataset SQLite file
 import sqlite3
 import pandas as pd
 
 df = pd.read_csv(
-    f'/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv'
+    f'/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv'
 ).set_index('osm_id')
 
 with sqlite3.connect(
-        'file:/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019.sqlite3?mode=ro',
+        '/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019.sqlite3?mode=ro',
         uri=True) as con:
     df2 = pd.read_sql('SELECT * FROM features;', con).set_index('osm_id')
 
@@ -108,7 +116,7 @@ srs.ImportFromEPSG(4326)
 
 driver: ogr.Driver = ogr.GetDriverByName('GPKG')
 ds: ogr.DataSource = driver.CreateDataSource(
-    f'/data/road_surface_classifier/BOULDER_COUNTY_NAIP_2019_results_{results_name}.gpkg'
+    f'/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019_results_{results_name}.gpkg'
 )
 layer: ogr.Layer = ds.CreateLayer(
     'data', srs=srs, geom_type=ogr.wkbLineString)     # type: ignore
@@ -164,10 +172,10 @@ ogr.UseExceptions()
 
 # Read CSV, merge with dataset, extract the labels we want
 df = pd.read_csv(
-    f'/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv'
+    f'/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019_results_{results_name}.csv'
 ).set_index('osm_id')
 with sqlite3.connect(
-        'file:/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019.sqlite3?mode=ro',
+        '/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019.sqlite3?mode=ro',
         uri=True) as con:
     df2 = pd.read_sql('SELECT * FROM features;', con).set_index('osm_id')
 df = df.join(df2)
@@ -200,7 +208,7 @@ srs.ImportFromEPSG(4326)
 # Put into GPKG format for QGIS
 driver: ogr.Driver = ogr.GetDriverByName('GPKG')
 ds: ogr.DataSource = driver.CreateDataSource(
-    f'/data/road_surface_classifier/BOULDER_COUNTY_NAIP_2019_results_eval_{results_name}.gpkg'
+    f'/ocean/projects/cis250156p/ppradhan/road_surface_classifier-master/data/BOULDER_COUNTY_NAIP_2019_results_eval_{results_name}.gpkg'
 )
 layer: ogr.Layer = ds.CreateLayer('data', srs=srs, geom_type=ogr.wkbLineString)
 

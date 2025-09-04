@@ -6,8 +6,8 @@ import pathlib
 from typing import List
 
 import boto3
-
-BASE_PATH = pathlib.Path('/data/road_surface_classifier')
+from config import Config
+BASE_PATH = pathlib.Path(Config.DATA_ROOT)
 assert BASE_PATH.is_dir()
 AWS_PATH = BASE_PATH / 'naip_on_aws'
 AWS_PATH.mkdir(exist_ok=True)

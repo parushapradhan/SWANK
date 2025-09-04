@@ -14,7 +14,7 @@ from rsc.osm.overpass_api.road_network import OSMRoadNetworkOverpassQuery
 gdal.UseExceptions()
 ogr.UseExceptions()
 
-OVERPASS_INTERPRETER_URL = "http://localhost:12345/api/interpreter"
+OVERPASS_INTERPRETER_URL = "https://overpass-api.de/api/interpreter"
 TEST_CASE_PATH = pathlib.Path("/nfs/taranis/naip/BOULDER_COUNTY_NAIP_2019")
 assert TEST_CASE_PATH.is_dir()
 OUTPUT_PATH = pathlib.Path(
